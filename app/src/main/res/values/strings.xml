@@ -1,0 +1,22 @@
+<resources>
+
+    <string name="app_info">APP版本：V1.0.0</string>
+    <string name="viewpager_indicator" formatted="false">%d/%d</string>
+    <!--蓝牙-->
+    <string name="activity_devicelist_title_paired_devices">已配对设备</string>
+    <string name="activity_devicelist_title_other_devices">其它设备</string>
+    <string name="activity_devicelist_button_scan">扫描蓝牙</string>
+    <string name="activity_devicelist_none_paired">未配对设备</string>
+    <string name="activity_devicelist_scanning">扫描中......</string>
+    <string name="activity_devicelist_select_device">设备列表</string>
+    <string name="activity_devicelist_connect">连接</string>
+    <string name="activity_devicelist_get_device_err">获取设备失败:</string>
+    <string name="activity_devicelist_bond_error">配对失败!Please bond bluetooth printer in settings panel first.</string>
+
+    <!--    人脸识别-->
+    <string name="recognize_failed_notice">DENIED:%s</string>
+    <string name="recognize_success_notice">PASS:%s</string>
+    <string name="low_confidence_level">face low confidence level</string>
+    <string name="switch_camera_failed">切换相机失败</string>
+    <string name="notice_change_detect_degree">camera switched, if no face detected, please change face detect degree in homepage</string>
+</resources>

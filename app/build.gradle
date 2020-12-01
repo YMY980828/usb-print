@@ -1,0 +1,144 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    aaptOptions {
+
+        cruncherEnabled = false
+        useNewCruncher = false
+
+    }
+
+    compileSdkVersion 26
+    buildToolsVersion "26.0.0"
+    defaultConfig {
+        applicationId "com.example.gw.usbprint"
+        minSdkVersion 17
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters "armeabi-v7a"
+            abiFilters "arm64-v8a"
+        }
+    }
+
+    productFlavors{
+        js {
+            applicationId "com.example.gw.usbprint"
+            versionCode 1
+            versionName "1.0.0"
+            buildConfigField "String", "RegionCode", '"32"'
+            buildConfigField "String", "BASE_SERVER_URL", '"http://jshgz.snzfnm.com/jscertificate/webapp/"'
+        }
+
+        jr{
+            applicationId "com.example.gw.bigData"
+            versionCode 1
+            versionName "1.0.0"
+            buildConfigField "String", "RegionCode", '"32"'
+            buildConfigField "String", "BASE_SERVER_URL", '"http://jshgz.snzfnm.com/jscertificate/webapp/"'
+        }
+
+        sd{
+            applicationId "com.example.gw.sdUsbprint"
+            versionCode 1
+            versionName "1.0.0"
+            resValue "string", "app_name", "山东合格证"
+            buildConfigField "String", "RegionCode", '"37"'
+            buildConfigField "String", "BASE_SERVER_URL", '"http://sdhgz.snzfnm.com/sdcertificate/webapp/"'
+            buildConfigField "String", "Main_Url", '"http://sdhgzapp.snzfnm.com/"'
+            buildConfigField "String", "Register_Url", '"http://sdhgzapp.snzfnm.com/#/register"'
+        }
+
+        sx{
+            applicationId "com.example.gw.sxUsbprint"
+            versionCode 1
+            versionName "1.0.0"
+            resValue "string", "app_name", "陕西合格证"
+            buildConfigField "String", "RegionCode", '"61"'
+            buildConfigField "String", "BASE_SERVER_URL", '"http://sxhgz.snzfnm.com/s3xcertificate/webapp/"'
+            buildConfigField "String", "Main_Url", '"http://sxhgzapp.snzfnm.com/"'
+            buildConfigField "String", "Register_Url", '"http://sxhgzapp.snzfnm.com/#/register"'
+        //    buildConfigField "String", "BASE_SERVER_URL", '"http://192.168.1.118:8084/webapp_war_exploded/webapp"'
+
+        }
+
+        nj{
+            applicationId "com.example.gw.njUsbprint"
+            versionCode 1
+            versionName "1.0.0"
+            buildConfigField "String", "RegionCode", '"3201"'
+            buildConfigField "String", "BASE_SERVER_URL", '"http://jshgz.snzfnm.com/jscertificate/webapp/"'
+        }
+    }
+
+    /**
+     * 打包导出apk时候的名字，或者各种服务的key配置等等
+     * */
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // 批量打包
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                        //输出apk名称为：渠道名_版本名_时间.apk
+                        def fileName = "sd usb-print-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
+                        //   def fileName = "nj usb-print-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
+                       // def fileName = "sd usb-print-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
+                        //   def fileName = "bigData-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
+                       // def fileName = "js usb-print-${defaultConfig.versionName}-${defaultConfig.versionCode}.apk"
+                        output.outputFile = new File(outputFile.parent, fileName)
+                    }
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir {
+        dirs '../aar'
+    }
+}
+
+dependencies {
+    compile(name:'autoreplyprint', ext:'aar')
+    compile 'io.reactivex.rxjava2:rxjava:2.2.6'
+    compile 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    //跨界面通信框架
+    compile 'org.greenrobot:eventbus:3.1.1'
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+   compile 'com.android.support:appcompat-v7:25.+'
+   // compile 'com.android.support:appcompat-v7:+'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+    //反射
+    compile files('libs/butterknife-6.1.0.jar')
+    //数据库
+    compile 'org.litepal.android:core:1.5.0'
+    //json解析
+    compile 'com.google.code.gson:gson:2.7'
+    //easy适配器
+    compile 'com.yuyh.easyadapter:library:1.0.0'
+    //显示图片框架
+    compile 'com.github.bumptech.glide:glide:3.6.1'
+    //分包
+    compile 'com.android.support:multidex:1.0.0'
+    //TBSWebview
+    compile files('libs/tbs_sdk_thirdapp_v3.6.0.1325_43613_sharewithdownload_withoutGame_obfs_20180807_151115.jar')
+    //二维码扫描
+    compile files('libs/zxing.jar')
+    //七牛云上传
+    compile 'com.qiniu:qiniu-android-sdk:7.3.15'
+    compile files('libs/zkandroidcore.jar')
+    compile files('libs/zkandroididcardreader.jar')
+    compile files('libs/ZPL_V1.05.jar')
+}
