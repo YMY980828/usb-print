@@ -134,8 +134,9 @@ dependencies {
     compile 'com.android.support:multidex:1.0.0'
     //TBSWebview
     compile files('libs/tbs_sdk_thirdapp_v3.6.0.1325_43613_sharewithdownload_withoutGame_obfs_20180807_151115.jar')
+    compile 'com.google.zxing:core:3.3.0'
     //二维码扫描
-    compile files('libs/zxing.jar')
+   // compile files('libs/zxing.jar')
     //七牛云上传
     compile 'com.qiniu:qiniu-android-sdk:7.3.15'
     compile files('libs/zkandroidcore.jar')

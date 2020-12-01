@@ -44,6 +44,7 @@
         <meta-data
             android:name="android.max_aspect"
             android:value="2.1" />
+
         <activity android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:name=".ui.RegisterAndRecognizeActivity"/>
         <activity
@@ -74,7 +75,15 @@
         <activity
             android:name=".ui.TBSWebViewActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+            android:windowSoftInputMode="stateHidden|adjustResize" >
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
         <activity
             android:name=".ui.PhotoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />

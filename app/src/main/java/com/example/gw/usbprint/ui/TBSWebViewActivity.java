@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.caysn.autoreplyprint.AutoReplyPrint;
@@ -189,6 +190,7 @@ public class TBSWebViewActivity extends BaseActivity {
 
         //注册打印回调接口 白色打印机
         registerCall();
+
     }
 
     private Pointer h = Pointer.NULL;
@@ -334,6 +336,32 @@ public class TBSWebViewActivity extends BaseActivity {
 
     public class method {
 
+        //白色打印机打印
+        public void pointerPrint(String json ){
+            JsonObject data = new JsonParser().parse(json).getAsJsonObject();
+            type = data.get("types").getAsString();
+            title1 = data.get("title1").getAsString();
+            title2 = data.get("title2").getAsString();
+            name = data.get("productName").getAsString();
+            user = data.get("person").getAsString();
+            phone = data.get("phone").getAsString();
+            code = data.get("shortCode").getAsString();
+            company = data.get("orgName").getAsString();
+            qrCode = data.get("codeUrl").getAsString();
+            num = data.get("printNum").getAsString();
+            weight = data.get("weightText").getAsString();
+            time = data.get("time").getAsString();
+            address = data.get("place").getAsString();
+            if (address.length() > 10) {
+                address = address.substring(0, 9) + "...";
+            }
+            certificateRecordId = data.get("certificateRecordId").getAsString();
+            reverse = data.get("reverse").getAsString();
+            EnumPort();
+
+
+        }
+
         //人脸识别
         @JavascriptInterface
         public void FaceRegister() {
@@ -403,12 +431,18 @@ public class TBSWebViewActivity extends BaseActivity {
             }
             certificateRecordId = data.get("certificateRecordId").getAsString();
             reverse = data.get("reverse").getAsString();
-            //USB not need call "iniPort"
-            if (zplPrinterHelper.IsOpened()) {
-                savePrintRecord();
-            } else {
-                connectUsb();
+
+            if (true){
+                EnumPort();
+                return;
             }
+
+            //USB not need call "iniPort"
+//            if (zplPrinterHelper.IsOpened()) {
+//                savePrintRecord();
+//            } else {
+//                connectUsb();
+//            }
         }
 
         @JavascriptInterface
@@ -608,14 +642,11 @@ public class TBSWebViewActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    if (!MainActivity28.this.isFinishing()){
-//                        Toast.makeText(MainActivity28.this, "Open Success", Toast.LENGTH_SHORT).show();
-//                    }
-//                    num = Integer.parseInt(editText.getText().toString().trim());
-//                    for (int i=0;i<num;i++){
-//                        Test_Label_DrawImageFromBitmap(h);
-//                    }
-                    Test_Label_DrawImageFromBitmap(h);
+                    if (!TBSWebViewActivity.this.isFinishing()){
+                        Toast.makeText(TBSWebViewActivity.this, "Open Success", Toast.LENGTH_SHORT).show();
+                    }
+                  Test_Label_DrawImageFromBitmap(h);
+
                 }
             });
         }
@@ -634,28 +665,51 @@ public class TBSWebViewActivity extends BaseActivity {
         }
     };
 
+    private void EnumPort(){
+         final String[] devicePaths = AutoReplyPrint.CP_Port_EnumUsb_Helper.EnumUsb();
+       // final String[] devicePaths = {"vid:0x4b43,pid:0x3830","b","c"};
+        if (devicePaths!=null){
+            CharSequence[] charSequences = devicePaths;
+            AlertDialog.Builder builder= new AlertDialog.Builder(TBSWebViewActivity.this);
+            builder.setTitle("选择打印端口")
+                    .setItems(charSequences, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            h = AutoReplyPrint.INSTANCE.CP_Port_OpenUsb(devicePaths[which], 1);
+                        }
+                    }).show();
+        }
+    }
+
     void Test_Label_DrawImageFromBitmap(Pointer h) {
+
         // Bitmap bitmap = TestUtils.getImageFromAssetsFile(ctx, "RasterImage/yellowmen.png");
-        num = Integer.parseInt(editText.getText().toString().trim());
+        if (h!=null){
+            Bitmap bitmap = UnKnownPrint();
+            if ((bitmap == null) || (bitmap.getWidth() == 0) || (bitmap.getHeight() == 0))
+                return;
+            try {
+                int printwidth = 520;
+                int dstw = printwidth;
+                int dsth = (int) (dstw * ((double) bitmap.getHeight() / bitmap.getWidth()));
+                int orientaion = reverse.equals("1") ?0:2;
+                // AutoReplyPrint.INSTANCE.CP_Label_PageBegin(h, 0, 0, dstw, dsth, AutoReplyPrint.CP_Label_Rotation_0);
+                AutoReplyPrint.INSTANCE.CP_Label_PageBegin(h, 0, 0, dstw, dsth, orientaion);
+                AutoReplyPrint.INSTANCE.CP_Label_DrawBox(h, 0, 0, dstw, dsth, 1, AutoReplyPrint.CP_Label_Color_Black);
+                AutoReplyPrint.CP_Label_DrawImageFromData_Helper.DrawImageFromBitmap(h, 0, 0, dstw, dsth, bitmap, AutoReplyPrint.CP_ImageBinarizationMethod_ErrorDiffusion, AutoReplyPrint.CP_ImageCompressionMethod_None);
+                AutoReplyPrint.INSTANCE.CP_Label_PagePrint(h, Integer.parseInt(num));
+                //再添加
+                // AutoReplyPrint.INSTANCE.CP_Pos_FeedAndHalfCutPaper(h);
+                Test_Pos_QueryPrintResult(h);
+                //再添加
+                AutoReplyPrint.INSTANCE.CP_Port_Close(h);
+            }catch (Exception e){
+                Toast.makeText(TBSWebViewActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+            }
 
-        Bitmap bitmap = UnKnownPrint();
-        if ((bitmap == null) || (bitmap.getWidth() == 0) || (bitmap.getHeight() == 0))
-            return;
-        int printwidth = 520;
-        int dstw = printwidth;
-        int dsth = (int) (dstw * ((double) bitmap.getHeight() / bitmap.getWidth()));
+        }
 
-        // AutoReplyPrint.INSTANCE.CP_Label_PageBegin(h, 0, 0, dstw, dsth, AutoReplyPrint.CP_Label_Rotation_0);
-        AutoReplyPrint.INSTANCE.CP_Label_PageBegin(h, 0, 0, dstw, dsth, oriention);
-        AutoReplyPrint.INSTANCE.CP_Label_DrawBox(h, 0, 0, dstw, dsth, 1, AutoReplyPrint.CP_Label_Color_Black);
-        AutoReplyPrint.CP_Label_DrawImageFromData_Helper.DrawImageFromBitmap(h, 0, 0, dstw, dsth, bitmap, AutoReplyPrint.CP_ImageBinarizationMethod_ErrorDiffusion, AutoReplyPrint.CP_ImageCompressionMethod_None);
-        AutoReplyPrint.INSTANCE.CP_Label_PagePrint(h, num);
 
-        //再添加
-        // AutoReplyPrint.INSTANCE.CP_Pos_FeedAndHalfCutPaper(h);
-        Test_Pos_QueryPrintResult(h);
-        //再添加
-        AutoReplyPrint.INSTANCE.CP_Port_Close(h);
     }
 
     void Test_Pos_QueryPrintResult(Pointer h) {
@@ -677,8 +731,8 @@ public class TBSWebViewActivity extends BaseActivity {
         String title5 = "开具日期: "+time;
         String title6 = "生产者: "+company;
         String title7 = "合格证编号: "+certificateRecordId;
-        Bitmap b = Bitmap.createBitmap(520,250, Bitmap.Config.ARGB_8888);
-        Bitmap bitmap =  createQRCodeBitmap(qrCode, 180, 180,"UTF-8","H", "1", Color.BLACK, Color.WHITE);
+        Bitmap b = Bitmap.createBitmap(520,300, Bitmap.Config.ARGB_8888);
+        Bitmap bitmap =  createQRCodeBitmap("http://www.baidu.com", 180, 180,"UTF-8","H", "1", Color.BLACK, Color.WHITE);
         Paint paint =new Paint();
         Paint paint1 =new Paint();
         paint.setTextSize(18);
